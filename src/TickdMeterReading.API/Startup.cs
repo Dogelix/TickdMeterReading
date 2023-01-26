@@ -28,6 +28,8 @@ using Serilog.Events;
 using TickdMeterReading.Domain.Accounts.Commands;
 using TickdMeterReading.Domain.Accounts.Events;
 using TickdMeterReading.Domain.Accounts;
+using TickdMeterReading.Domain.MeterReadings;
+using TickdMeterReading.Domain.MeterReadings.Commands;
 
 namespace TickdMeterReading.API
 {
@@ -45,12 +47,20 @@ namespace TickdMeterReading.API
         {
             services.AddControllers();
 
+            // Services
             services.AddScoped<IAccountService, AccountService>();
+            services.AddTransient<IMeterReadingService, MeterReadingService>();
+
+            // Mappers
             services.AddSingleton<AccountViewModelMapper>();
+            services.AddSingleton<AccountViewModelMapper>();
+
+            // Factories
             services.AddTransient<IAccountFactory, AccountEntityFactory>();
+            services.AddTransient<IMeterReadingFactory, MeterReadingEntityFactory>();
 
-            
-
+            // Handlers
+            services.AddScoped<MeterReadingCommandHandler>();
             services.AddScoped<AccountCommandHandler>();
             services.AddScoped<AccountEventHandler>();
 
@@ -65,6 +75,8 @@ namespace TickdMeterReading.API
                 builder.On<RemoveAccountCommand>().PipelineAsync().Call<AccountCommandHandler>((handler, request) => handler.HandleDeleteAccount(request));
 
                 builder.On<AccountDeletedEvent>().PipelineAsync().Call<AccountEventHandler>((handler, request) => handler.HandleTaskDeletedEvent(request));
+
+                builder.On<AddMeterReadingCommand>().PipelineAsync().Call<MeterReadingCommandHandler>((handler, request) => handler.HandleNewMeterReading(request));
             });
 
             services.AddSingleton(serviceProvider =>

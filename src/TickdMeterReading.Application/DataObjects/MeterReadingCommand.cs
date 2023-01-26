@@ -15,7 +15,7 @@ namespace TickdMeterReading.Application.ViewModels
         { 
             Id = id.ToString();
             AccountId = accountId.Value;
-            MeterReadingDateTime = dateTime.ToString();
+            MeterReadingDateTime = dateTime.Value;
             MeterReadValue = value.Value;
         }
 
@@ -26,7 +26,7 @@ namespace TickdMeterReading.Application.ViewModels
         public int AccountId { get; set; }
 
         [Required]
-        public string MeterReadingDateTime { get; set; }
+        public DateTime MeterReadingDateTime { get; set; }
 
         [Required]
         public string MeterReadValue { get; set; }
