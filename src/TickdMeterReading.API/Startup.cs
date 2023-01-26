@@ -7,9 +7,6 @@ using TickdMeterReading.API.Extensions.Middleware;
 using TickdMeterReading.Application.Handlers;
 using TickdMeterReading.Application.Mappers;
 using TickdMeterReading.Application.Services;
-using TickdMeterReading.Domain.Tasks;
-using TickdMeterReading.Domain.Tasks.Commands;
-using TickdMeterReading.Domain.Tasks.Events;
 using TickdMeterReading.Infrastructure.Factories;
 using TickdMeterReading.Infrastructure.Repositories;
 using FluentMediator;
@@ -28,6 +25,9 @@ using OpenTracing.Util;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using TickdMeterReading.Domain.Accounts.Commands;
+using TickdMeterReading.Domain.Accounts.Events;
+using TickdMeterReading.Domain.Accounts;
 
 namespace TickdMeterReading.API
 {
@@ -45,27 +45,26 @@ namespace TickdMeterReading.API
         {
             services.AddControllers();
 
-            services.AddScoped<ITaskService, TaskService>();
-            services.AddTransient<ITaskRepository, TaskRepository>(); //just as an example, you may use it as .AddScoped
-            services.AddSingleton<TaskViewModelMapper>();
-            services.AddTransient<ITaskFactory, EntityFactory>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddSingleton<AccountViewModelMapper>();
+            services.AddTransient<IAccountFactory, AccountEntityFactory>();
 
             
 
-            services.AddScoped<TaskCommandHandler>();
-            services.AddScoped<TaskEventHandler>();
+            services.AddScoped<AccountCommandHandler>();
+            services.AddScoped<AccountEventHandler>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddFluentMediator(builder =>
             {
-                builder.On<CreateNewTaskCommand>().PipelineAsync().Return<Domain.Tasks.Task, TaskCommandHandler>((handler, request) => handler.HandleNewTask(request));
+                builder.On<CreateNewAccountCommand>().PipelineAsync().Return<Domain.Accounts.Account, AccountCommandHandler>((handler, request) => handler.HandleNewAccount(request));
 
-                builder.On<TaskCreatedEvent>().PipelineAsync().Call<TaskEventHandler>((handler, request) => handler.HandleTaskCreatedEvent(request));
+                builder.On<AccountCreatedEvent>().PipelineAsync().Call<AccountEventHandler>((handler, request) => handler.HandleTaskCreatedEvent(request));
 
-                builder.On<DeleteTaskCommand>().PipelineAsync().Call<TaskCommandHandler>((handler, request) => handler.HandleDeleteTask(request));
+                builder.On<RemoveAccountCommand>().PipelineAsync().Call<AccountCommandHandler>((handler, request) => handler.HandleDeleteAccount(request));
 
-                builder.On<TaskDeletedEvent>().PipelineAsync().Call<TaskEventHandler>((handler, request) => handler.HandleTaskDeletedEvent(request));
+                builder.On<AccountDeletedEvent>().PipelineAsync().Call<AccountEventHandler>((handler, request) => handler.HandleTaskDeletedEvent(request));
             });
 
             services.AddSingleton(serviceProvider =>
@@ -123,7 +122,7 @@ namespace TickdMeterReading.API
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Tasks API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tickd Technical Test API V1");
             });
         }
     }

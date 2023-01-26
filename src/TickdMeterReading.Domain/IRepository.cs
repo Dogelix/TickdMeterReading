@@ -16,9 +16,9 @@ namespace TickdMeterReading.Domain
     public interface IRepository<TEntity>
         where TEntity : IAggregateRoot
     {
-        Task<TEntity> FindById(Guid id);
+        Task<TEntity> FindById(int id);
         Task<List<TEntity>> FindAll();
         Task<TEntity> Add(TEntity entity);
-        Task Remove(Guid id);
+        Task Remove(int id);
     }
 }
