@@ -30,6 +30,8 @@ using TickdMeterReading.Domain.Accounts.Events;
 using TickdMeterReading.Domain.Accounts;
 using TickdMeterReading.Domain.MeterReadings;
 using TickdMeterReading.Domain.MeterReadings.Commands;
+using MySqlConnector;
+using TickdMeterReading.Infrastructure;
 
 namespace TickdMeterReading.API
 {
@@ -46,6 +48,9 @@ namespace TickdMeterReading.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddTransient<TickdTechTestDb>(_ => new TickdTechTestDb(Configuration.GetConnectionString("Default")));
+
 
             // Services
             services.AddScoped<IAccountService, AccountService>();

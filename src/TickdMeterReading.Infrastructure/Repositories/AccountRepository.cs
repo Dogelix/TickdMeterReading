@@ -10,9 +10,11 @@ namespace TickdMeterReading.Infrastructure.Repositories
 {
     public class AccountRepository : IAccountsRepository
     {
-        public AccountRepository() 
-        {
+        private TickdTechTestDb _tickdTechTestDb;
 
+        public AccountRepository(TickdTechTestDb tickdTechTestDb) 
+        {
+            _tickdTechTestDb = tickdTechTestDb;
         }
 
         public Task<Account> Add(Account entity)
