@@ -51,11 +51,6 @@ namespace TickdMeterReading.API
 
             services.AddTransient<TickdTechTestDb>(_ => new TickdTechTestDb(Configuration.GetConnectionString("Default")));
 
-
-            // Services
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddTransient<IMeterReadingService, MeterReadingService>();
-
             // Mappers
             services.AddSingleton<AccountViewModelMapper>();
             services.AddSingleton<AccountViewModelMapper>();
@@ -64,16 +59,24 @@ namespace TickdMeterReading.API
             services.AddTransient<IAccountFactory, AccountEntityFactory>();
             services.AddTransient<IMeterReadingFactory, MeterReadingEntityFactory>();
 
+            // Repositories
+            services.AddScoped<IMeterReadingRepository, MeterReadingRespository>();
+            services.AddScoped<IAccountsRepository, AccountRepository>();
+
             // Handlers
             services.AddScoped<MeterReadingCommandHandler>();
             services.AddScoped<AccountCommandHandler>();
             services.AddScoped<AccountEventHandler>();
 
+            // Services
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IMeterReadingService, MeterReadingService>();
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddFluentMediator(builder =>
             {
-                builder.On<CreateNewAccountCommand>().PipelineAsync().Return<Domain.Accounts.Account, AccountCommandHandler>((handler, request) => handler.HandleNewAccount(request));
+                builder.On<CreateNewAccountCommand>().PipelineAsync().Return<Account, AccountCommandHandler>((handler, request) => handler.HandleNewAccount(request));
 
                 builder.On<AccountCreatedEvent>().PipelineAsync().Call<AccountEventHandler>((handler, request) => handler.HandleTaskCreatedEvent(request));
 

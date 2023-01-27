@@ -6,6 +6,9 @@ using TickdMeterReading.Application.Services;
 using TickdMeterReading.Application.ViewModels;
 using TickdMeterReading.Domain.MeterReadings;
 using Serilog;
+using Microsoft.AspNetCore.Hosting;
+using TickdMeterReading.API.Extensions;
+using System.Linq;
 
 namespace TickdMeterReading.API.Controllers
 {
@@ -14,10 +17,14 @@ namespace TickdMeterReading.API.Controllers
     public class MeterReadingsController : ControllerBase
     {
         private readonly IMeterReadingService _meterReadingService;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IAccountService _accountService;
 
-        public MeterReadingsController( IMeterReadingService meterReadingService ) 
+        public MeterReadingsController( IMeterReadingService meterReadingService, IAccountService accountService, IWebHostEnvironment environment) 
         { 
             _meterReadingService = meterReadingService;
+            _environment = environment;
+            _accountService = accountService;
         }
 
         /// <summary>
@@ -27,11 +34,25 @@ namespace TickdMeterReading.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(MeterReadingViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] IFormFile csv)
+        public async Task<IActionResult> Post(IFormFile csv)
         {
             try
             {
-                return Ok();
+                var allAccounts = await _accountService.GetAll();
+
+                var validatedMeterReadings = await CsvValidator.ValidateCsvUploadAsync(_environment, csv, allAccounts.ToList());
+
+                if(validatedMeterReadings == null)
+                {
+                    return BadRequest();
+                }
+
+                foreach (var reading in validatedMeterReadings)
+                {
+                    await _meterReadingService.Create(reading);
+                }
+
+                return Ok($"{validatedMeterReadings.Count} meter readings added.");
             }
             catch (Exception ex)
             {

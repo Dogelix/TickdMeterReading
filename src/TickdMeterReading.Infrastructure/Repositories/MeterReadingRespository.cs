@@ -26,7 +26,7 @@ namespace TickdMeterReading.Infrastructure.Repositories
             {
                 using (var cmd = _tickdTechTestDb.Connection.CreateCommand())
                 {
-                    cmd.CommandText = @"INSERT INTO `meter_reading` VALUES (@Id, @AccountId, @MeterReadingDateTime, @MeterReadValue);";
+                    cmd.CommandText = @"INSERT INTO `Meter_Reading` VALUES (@Id, @AccountId, @MeterReadingDateTime, @MeterReadValue);";
                     BindParams(entity, cmd);
                     await cmd.ExecuteNonQueryAsync();
                 }
